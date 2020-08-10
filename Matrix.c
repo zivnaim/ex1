@@ -18,7 +18,7 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
     }
     pm->height = height;
     pm->width = width;
-    *(pm->matrix) = (int**) malloc(height * sizeof(int*));
+    pm->matrix = (int**) malloc(height * sizeof(int*));
     if (pm->matrix == NULL) {
         //ERROR
     }
