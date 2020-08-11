@@ -5,7 +5,7 @@
 
 struct Matrix
 {
-    int** matrix; 
+    double** matrix; 
     int width;
     int height;
 };
@@ -14,18 +14,18 @@ typedef struct Matrix Matrix;
 ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
     PMatrix pm = (PMatrix) malloc(sizeof(Matrix));
     if (pm == NULL) {
-        //ERROR
+        return ERROR_FAIL_ALLOCATE;
     }
     pm->height = height;
     pm->width = width;
-    pm->matrix = (int**) malloc(height * sizeof(int*));
+    pm->matrix = (double**) malloc(height * sizeof(double*));
     if (pm->matrix == NULL) {
-        //ERROR
+        return ERROR_FAIL_ALLOCATE;
     }
     for (int i = 0; i < height; ++i) {
-        pm->matrix[i] = calloc(width, sizeof(int));
+        pm->matrix[i] = calloc(width, sizeof(double));
         if (pm->matrix[i] == NULL) {
-            //ERROR
+            return ERROR_FAIL_ALLOCATE;
         }
     } 
     *matrix = pm;
@@ -36,7 +36,11 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 }
 
 void matrix_destroy(PMatrix matrix) {
-
+    for (int i = 0; i < matrix->height; ++i) {
+        free(matrix->matrix[i]);
+    }
+    free (matrix->matrix);
+    free (matrix);
 }
 
 
@@ -82,5 +86,9 @@ ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
 }
 
 ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar) {
-
+    for (int i = 0; i < matrix->height; ++i) {
+        for (int j = 0; j < matrix->width; ++j) {
+            matrix->matrix[i][j] = matrix->matrix[i][j] * scalar;
+        }
+    }
 }
