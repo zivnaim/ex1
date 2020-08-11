@@ -59,10 +59,25 @@ ErrorCode matrix_getValue(CPMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
 }
 
 ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
-
+    if (lhs->height != rhs->height || lhs->width != rhs->width) {
+        return ERROR_ILLEGAL_ACTION;
+    }
+    PMatrix* new;
+    ErrorCode ec = matrix_create(new, lhs->height, lhs->width);
+    if (!error_isSuccess(ec)) {
+        return ec;
+    }
+    PMatrix mnew = *new;
+    for (int i = 0; i < lhs->height; ++i) {
+        for (int j = 0; j < lhs->width; ++j) {
+            mnew->matrix[i][j] = lhs->matrix[i][j] + rhs->matrix[i][j];
+        }
+    }
+    *result = mnew;
 }
 
 ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
+    PMatrix new = malloc(sizeof(Matrix));
 
 }
 
