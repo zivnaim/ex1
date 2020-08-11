@@ -57,21 +57,39 @@ void matrix_destroy(PMatrix matrix) {
 
 
 ErrorCode matrix_getHeight(CPMatrix matrix, uint32_t* result) {
+    if (matrix == NULL || result == NULL) { //check the args is ok
+        return ERROR_NULL_ARGUMENT;
+    }
     *result = matrix->height;
 }
 
 ErrorCode matrix_getWidth(CPMatrix matrix, uint32_t* result) {
+    if (matrix == NULL || result == NULL) { //check the args is ok
+        return ERROR_NULL_ARGUMENT;
+    }
     *result = matrix->width;
 }
 
 ErrorCode matrix_setValue(PMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
                           double value) {
+    if (matrix == NULL) { //check the args is ok
+        return ERROR_NULL_ARGUMENT;
+    }
+    if (rowIndex >= matrix->height || colIndex >= matrix->width) {
+        return ERROR_NOT_EXIST_INDEX;
+    }
     matrix->matrix[rowIndex][colIndex] = value;
 }
 
 ErrorCode matrix_getValue(CPMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
                           double* value) {
-                            
+    if (matrix == NULL || value == NULL) { //check the args is ok
+        return ERROR_NULL_ARGUMENT;
+    }
+    if (rowIndex >= matrix->height || colIndex >= matrix->width) {
+        return ERROR_NOT_EXIST_INDEX;
+    }
+    *value = matrix->matrix[rowIndex][colIndex];            
 }
 
 ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
@@ -92,12 +110,16 @@ ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
     *result = mnew;
 }
 
+///////////
 ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
     PMatrix new = malloc(sizeof(Matrix));
 
 }
 
 ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar) {
+    if (matrix == NULL) { //check the args is ok
+        return ERROR_NULL_ARGUMENT;
+    }
     for (int i = 0; i < matrix->height; ++i) {
         for (int j = 0; j < matrix->width; ++j) {
             matrix->matrix[i][j] = matrix->matrix[i][j] * scalar;

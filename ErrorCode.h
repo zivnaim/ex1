@@ -8,7 +8,8 @@ typedef enum {
     ERROR_SUCCESS = 0,
     ERROR_FAIL_ALLOCATE = 1,
     ERROR_ILLEGAL_ACTION = 2,
-    ERROR_NULL_ARGUMENT = 3
+    ERROR_NULL_ARGUMENT = 3,
+    ERROR_NOT_EXIST_INDEX = 4
 } ErrorCode;
 
 /**
