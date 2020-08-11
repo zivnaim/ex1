@@ -12,17 +12,21 @@ struct Matrix
 typedef struct Matrix Matrix;
 
 ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
-    PMatrix pm = (PMatrix) malloc(sizeof(Matrix));
+    if (matrix == NULL) { //check the args is ok
+        return ERROR_NULL_ARGUMENT;
+    }
+    PMatrix pm = (PMatrix) malloc(sizeof(Matrix)); //allocate memory to the struct
     if (pm == NULL) {
+        return ERROR_FAIL_ALLOCATE;
+    }
+    pm->matrix = (double**) malloc(height * sizeof(double*)); //allocate the inside array 
+    if (pm->matrix == NULL) {
         return ERROR_FAIL_ALLOCATE;
     }
     pm->height = height;
     pm->width = width;
-    pm->matrix = (double**) malloc(height * sizeof(double*));
-    if (pm->matrix == NULL) {
-        return ERROR_FAIL_ALLOCATE;
-    }
     for (int i = 0; i < height; ++i) {
+        //allocate the rows and put zero inside.
         pm->matrix[i] = calloc(width, sizeof(double));
         if (pm->matrix[i] == NULL) {
             return ERROR_FAIL_ALLOCATE;
@@ -32,7 +36,15 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
 }
 
 ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
-
+    ErrorCode ec = matrix_create(result, source->height, source->width);
+    if (!error_isSuccess(ec)) {
+        return ec;
+    } 
+    for (int i = 0; i < source->height; ++i) {
+        for (int j = 0; j < source->width; ++j) {
+            (*result)->matrix[i][j] = source->matrix[i][j];
+        }
+    }
 }
 
 void matrix_destroy(PMatrix matrix) {
