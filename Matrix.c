@@ -21,6 +21,7 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
     }
     pm->matrix = (double**) malloc(height * sizeof(double*)); //allocate the inside array 
     if (pm->matrix == NULL) {
+        free(pm);
         return ERROR_FAIL_ALLOCATE;
     }
     pm->height = height;
@@ -29,6 +30,7 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
         //allocate the rows and put zero inside.
         pm->matrix[i] = calloc(width, sizeof(double));
         if (pm->matrix[i] == NULL) {
+            //I NEED TO FREE THE MEMORY!!!!!    
             return ERROR_FAIL_ALLOCATE;
         }
     } 
