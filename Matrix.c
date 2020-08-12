@@ -165,5 +165,5 @@ ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar) {
  * write description 
  * errors!!
  * 
- * 
+ * */
 
