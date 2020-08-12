@@ -6,31 +6,19 @@ bool error_isSuccess(ErrorCode code) {
 }
 
 const char* error_getErrorMessage(ErrorCode code) {
-    switch (code)
-    {
-    case ERROR_SUCCESS:
-        char* s = "Error success.";
-        return s;
-        break;
-    case ERROR_FAIL_ALLOCATE:
-        char* s = "One of the memory allocates failed.";
-        return s;
-        break;
-    case ERROR_NULL_ARGUMENT:
-        char* s = "One of the arguments is a NULL pointer";
-        return s;
-        break;
-    case ERROR_NOT_EXIST_INDEX:
-        char* s = "The function called with index out of the matrix range";
-        return s;
-        break;
-    case ERROR_ILLEGAL_ACTION:
-        char* s = "The action is illegl or not set action. ";
-        return s;
-        break;
-    default:
-        char* s = "Not an ERROR CODE";
-        return s;
-        break;
+    switch (code) {
+        case ERROR_SUCCESS:
+            return "Error success.";
+        case ERROR_FAIL_ALLOCATE: 
+            return "One of the memory allocates failed.";
+        case ERROR_NULL_ARGUMENT:
+            return "One of the arguments is a NULL pointer";
+        case ERROR_NOT_EXIST_INDEX:
+            return "The function called with index out of the matrix range";
+        case ERROR_ILLEGAL_ACTION:
+            return "The action is illegl or not set action.";
+        default:
+            return "Not an ERROR CODE";
     }
+    return "Not an ERROR CODE";
 }

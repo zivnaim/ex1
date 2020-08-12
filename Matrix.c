@@ -130,22 +130,28 @@ ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
     if (!error_isSuccess(ec)) {
         return ec;
     }
+    double sum = 0.0;
     for (int i = 0; i < pm->height; ++i) {
         for (int j = 0; j < pm->width; ++j) {
-            pm->matrix[i][j] = matrix_vectorMulitply(lhs, i, rhs, j);
+            sum = 0.0;
+            for (int k = 0; k < lhs->width; ++k) {
+                sum += lhs->matrix[i][k] * rhs->matrix[k][j];
+            }
+            pm->matrix[i][j] = sum;
+           // pm->matrix[i][j] = matrix_vectorMulitply(lhs, i, rhs, j);
         } 
     }
     *result = pm;
     return ERROR_SUCCESS;
 }
 
-double matrix_vectorMulitply(CPMatrix lhs, int row, CPMatrix rhs, int col) {
-    int sum = 0;
+/*double matrix_vectorMulitply(CPMatrix lhs, int row, CPMatrix rhs, int col) {
+    double sum = 0.0;
     for (int i = 0; i < lhs->width; ++i) {
         sum += lhs->matrix[row][i] * rhs->matrix[i][col];
     }
     return sum;
-}
+}*/
 
 ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar) {
     if (matrix == NULL) { //check the args is ok
@@ -158,12 +164,3 @@ ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar) {
     }
     return ERROR_SUCCESS;
 }
-
-/**
- * things to do:
- * free memory if allocate fail 
- * write description 
- * errors!!
- * 
- * */
-
