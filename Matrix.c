@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Matrix.h"
-#define defaultVal 0
 
 struct Matrix
 {
@@ -35,6 +34,7 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
         }
     } 
     *matrix = pm;
+    return ERROR_SUCCESS;
 }
 
 ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
@@ -63,6 +63,7 @@ ErrorCode matrix_getHeight(CPMatrix matrix, uint32_t* result) {
         return ERROR_NULL_ARGUMENT;
     }
     *result = matrix->height;
+    return ERROR_SUCCESS;
 }
 
 ErrorCode matrix_getWidth(CPMatrix matrix, uint32_t* result) {
@@ -70,6 +71,7 @@ ErrorCode matrix_getWidth(CPMatrix matrix, uint32_t* result) {
         return ERROR_NULL_ARGUMENT;
     }
     *result = matrix->width;
+    return ERROR_SUCCESS;
 }
 
 ErrorCode matrix_setValue(PMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
@@ -81,6 +83,7 @@ ErrorCode matrix_setValue(PMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
         return ERROR_NOT_EXIST_INDEX;
     }
     matrix->matrix[rowIndex][colIndex] = value;
+    return ERROR_SUCCESS;
 }
 
 ErrorCode matrix_getValue(CPMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
@@ -91,7 +94,8 @@ ErrorCode matrix_getValue(CPMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
     if (rowIndex >= matrix->height || colIndex >= matrix->width) {
         return ERROR_NOT_EXIST_INDEX;
     }
-    *value = matrix->matrix[rowIndex][colIndex];            
+    *value = matrix->matrix[rowIndex][colIndex];
+    return ERROR_SUCCESS;            
 }
 
 ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
@@ -110,12 +114,37 @@ ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
         }
     }
     *result = mnew;
+    return ERROR_SUCCESS;
 }
 
 ///////////
 ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
-    PMatrix new = malloc(sizeof(Matrix));
+    if (lhs->width != rhs->height) {
+        return ERROR_ILLEGAL_ACTION;
+    }
+    if (result == NULL) {
+        return ERROR_NULL_ARGUMENT;
+    } 
+    PMatrix pm; 
+    ErrorCode ec = matrix_create(&pm, lhs->height, rhs->width);
+    if (!error_isSuccess(ec)) {
+        return ec;
+    }
+    for (int i = 0; i < pm->height; ++i) {
+        for (int j = 0; j < pm->width; ++j) {
+            pm->matrix[i][j] = matrix_vectorMulitply(lhs, i, rhs, j);
+        } 
+    }
+    *result = pm;
+    return ERROR_SUCCESS;
+}
 
+double matrix_vectorMulitply(CPMatrix lhs, int row, CPMatrix rhs, int col) {
+    int sum = 0;
+    for (int i = 0; i < lhs->width; ++i) {
+        sum += lhs->matrix[row][i] * rhs->matrix[i][col];
+    }
+    return sum;
 }
 
 ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar) {
@@ -127,4 +156,14 @@ ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar) {
             matrix->matrix[i][j] = matrix->matrix[i][j] * scalar;
         }
     }
+    return ERROR_SUCCESS;
 }
+
+/**
+ * things to do:
+ * free memory if allocate fail 
+ * write description 
+ * errors!!
+ * 
+ * 
+
