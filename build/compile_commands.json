@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/zivnaim/ass1/ex1/build",
+  "command": "/bin/c99-gcc   -g   -o CMakeFiles/ex1.dir/ErrorCode.c.o   -c /home/zivnaim/ass1/ex1/ErrorCode.c",
+  "file": "/home/zivnaim/ass1/ex1/ErrorCode.c"
+},
+{
+  "directory": "/home/zivnaim/ass1/ex1/build",
+  "command": "/bin/c99-gcc   -g   -o CMakeFiles/ex1.dir/Matrix.c.o   -c /home/zivnaim/ass1/ex1/Matrix.c",
+  "file": "/home/zivnaim/ass1/ex1/Matrix.c"
+}
+]

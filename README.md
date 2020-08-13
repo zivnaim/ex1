@@ -1,1 +1,1 @@
-this is a README file for ex1.
+README file for assignment 1 - course ADVANCED PROGRAMING 1.

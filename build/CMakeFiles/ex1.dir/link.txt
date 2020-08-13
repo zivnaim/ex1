@@ -1,0 +1,2 @@
+/bin/ar qc libex1.a  CMakeFiles/ex1.dir/ErrorCode.c.o CMakeFiles/ex1.dir/Matrix.c.o
+/bin/ranlib libex1.a
