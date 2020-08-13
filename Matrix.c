@@ -20,6 +20,7 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
     }
     pm->matrix = (double**) malloc(height * sizeof(double*)); //allocate the inside array 
     if (pm->matrix == NULL) {
+
         free(pm);
         return ERROR_FAIL_ALLOCATE;
     }
