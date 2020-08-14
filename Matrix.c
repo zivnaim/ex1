@@ -51,8 +51,8 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
             return ec;
         } 
     }
-    for (int i = 0; i < source->height; ++i) {
-        for (int j = 0; j < source->width; ++j) {
+    for (int i = 0; i < (*result)->height; ++i) {
+        for (int j = 0; j < (*result)->width; ++j) {
             (*result)->matrix[i][j] = source->matrix[i][j];
         }
     }
@@ -143,22 +143,23 @@ ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
     if (result == NULL) {
         return ERROR_NULL_ARGUMENT;
     } 
-    PMatrix pm; 
-    ErrorCode ec = matrix_create(&pm, lhs->height, rhs->width);
-    if (!error_isSuccess(ec)) {
-        return ec;
+    if (*result == NULL) {
+        //if we get only pointer, alloctae the matrix. 
+        ErrorCode ec = matrix_create(result, lhs->height, rhs->width);
+        if (!error_isSuccess(ec)) {
+           return ec;
+        }
     }
     double sum = 0.0;
-    for (int i = 0; i < pm->height; ++i) {
-        for (int j = 0; j < pm->width; ++j) {
+    for (int i = 0; i < (*result)->height; ++i) {
+        for (int j = 0; j < (*result)->width; ++j) {
             sum = 0.0;
             for (int k = 0; k < lhs->width; ++k) {
                 sum += lhs->matrix[i][k] * rhs->matrix[k][j];
             }
-            pm->matrix[i][j] = sum;
+            (*result)->matrix[i][j] = sum;
         } 
     }
-    *result = pm;
     return ERROR_SUCCESS;
 }
 
