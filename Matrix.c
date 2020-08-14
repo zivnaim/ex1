@@ -23,6 +23,7 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
         free(pm);
         return ERROR_FAIL_ALLOCATE;
     }
+    //initialize the variables.
     pm->height = height;
     pm->width = width;
     for (int i = 0; i < height; ++i) {
@@ -41,16 +42,16 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
 }
 
 ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
+    //check if one of the argumnets is NULL
     if (source == NULL || result == NULL) {
         return ERROR_NULL_ARGUMENT;
     }
-    if (*result == NULL || (*result)->height != source->height || (*result)->width != source->width) {
-        free (*result);
-        ErrorCode ec = matrix_create(result, source->height, source->width);
-        if (!error_isSuccess(ec)) {
-            return ec;
-        } 
-    }
+    //allocte the copied matrix.
+    ErrorCode ec = matrix_create(result, source->height, source->width);
+    if (!error_isSuccess(ec)) {
+        return ec;
+    } 
+    //copy the values. 
     for (int i = 0; i < (*result)->height; ++i) {
         for (int j = 0; j < (*result)->width; ++j) {
             (*result)->matrix[i][j] = source->matrix[i][j];
@@ -60,6 +61,7 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 }
 
 void matrix_destroy(PMatrix matrix) {
+    //free each rows
     for (int i = 0; i < matrix->height; ++i) {
         free(matrix->matrix[i]);
     }
@@ -89,6 +91,7 @@ ErrorCode matrix_setValue(PMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
     if (matrix == NULL) { //check the args is ok
         return ERROR_NULL_ARGUMENT;
     }
+    //check if the indexes is in the range
     if (rowIndex >= matrix->height || colIndex >= matrix->width) {
         return ERROR_NOT_EXIST_INDEX;
     }
@@ -101,6 +104,7 @@ ErrorCode matrix_getValue(CPMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
     if (matrix == NULL || value == NULL) { //check the args is ok
         return ERROR_NULL_ARGUMENT;
     }
+    //check if the indexes is in the range
     if (rowIndex >= matrix->height || colIndex >= matrix->width) {
         return ERROR_NOT_EXIST_INDEX;
     }
@@ -109,25 +113,18 @@ ErrorCode matrix_getValue(CPMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
 }
 
 ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
-    if (result == NULL) {
+    if (result == NULL || lhs == NULL || rhs == NULL) { //check if the args ok
         return ERROR_NULL_ARGUMENT;
     }
-    if (*result == NULL) {
-        ErrorCode ec = matrix_create(result, lhs->height, lhs->width);
-        if (!error_isSuccess(ec)) {
-            return ec; 
-        }
-    }
-    if (lhs->height != rhs->height || lhs->width != rhs->width) {
+    if (lhs->height != rhs->height || lhs->width != rhs->width) { //check the sizes are the same.
         return ERROR_ILLEGAL_ACTION;
     }
-    if (lhs->width != (*result)->width || lhs->height != (*result)->height) {
-        ErrorCode ec = matrix_create(result, lhs->height, lhs->width);
-        if (!error_isSuccess(ec)) {
-            return ec; 
-        }
+    //create the new matrix. 
+    ErrorCode ec = matrix_create(result, lhs->height, lhs->width);
+    if (!error_isSuccess(ec)) {
+       return ec; 
     }
-  
+    //set values in the new matrix.
     for (int i = 0; i < lhs->height; ++i) {
         for (int j = 0; j < lhs->width; ++j) {
             (*result)->matrix[i][j] = lhs->matrix[i][j] + rhs->matrix[i][j];
@@ -137,22 +134,22 @@ ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
 }
 
 ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
-    if (lhs->width != rhs->height) {
+    if (lhs->width != rhs->height) { //check the action is legal
         return ERROR_ILLEGAL_ACTION;
     }
-    if (result == NULL) {
+    if (result == NULL || lhs == NULL ||  rhs == NULL) {
         return ERROR_NULL_ARGUMENT;
     } 
-    if (*result == NULL) {
-        //if we get only pointer, alloctae the matrix. 
-        ErrorCode ec = matrix_create(result, lhs->height, rhs->width);
-        if (!error_isSuccess(ec)) {
-           return ec;
-        }
+    //create the new matrix
+    ErrorCode ec = matrix_create(result, lhs->height, rhs->width);
+    if (!error_isSuccess(ec)) {
+       return ec;
     }
+    //set values in the matrix. 
     double sum = 0.0;
     for (int i = 0; i < (*result)->height; ++i) {
         for (int j = 0; j < (*result)->width; ++j) {
+            //multiply vectors
             sum = 0.0;
             for (int k = 0; k < lhs->width; ++k) {
                 sum += lhs->matrix[i][k] * rhs->matrix[k][j];
