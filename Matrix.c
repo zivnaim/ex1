@@ -11,6 +11,9 @@ struct Matrix
 typedef struct Matrix Matrix;
 
 ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
+    if (height <= 0 || width <= 0) {
+        return ERROR_MATRIX_SIZE_ILLEGAL;
+    }
     if (matrix == NULL) { //check the args is ok
         return ERROR_NULL_ARGUMENT;
     }
@@ -61,6 +64,9 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 }
 
 void matrix_destroy(PMatrix matrix) {
+    if (matrix == NULL) {
+        return;
+    }
     //free each rows
     for (int i = 0; i < matrix->height; ++i) {
         free(matrix->matrix[i]);
@@ -134,12 +140,12 @@ ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
 }
 
 ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
+    if (result == NULL || lhs == NULL || rhs == NULL) {
+        return ERROR_NULL_ARGUMENT;
+    } 
     if (lhs->width != rhs->height) { //check the action is legal
         return ERROR_ILLEGAL_ACTION;
     }
-    if (result == NULL || lhs == NULL ||  rhs == NULL) {
-        return ERROR_NULL_ARGUMENT;
-    } 
     //create the new matrix
     ErrorCode ec = matrix_create(result, lhs->height, rhs->width);
     if (!error_isSuccess(ec)) {
@@ -152,7 +158,7 @@ ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
             //multiply vectors
             sum = 0.0;
             for (int k = 0; k < lhs->width; ++k) {
-                sum += lhs->matrix[i][k] * rhs->matrix[k][j];
+                sum += (lhs->matrix[i][k] * rhs->matrix[k][j]);
             }
             (*result)->matrix[i][j] = sum;
         } 
