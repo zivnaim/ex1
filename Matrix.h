@@ -2,7 +2,6 @@
 #define __MATRIX_H
 #include <stdint.h>
 #include <stdio.h>
-// #include "../../Downloads/ErrorCode.h"
 #include "ErrorCode.h"
 
 // The implementation of the struct is up to you
