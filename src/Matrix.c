@@ -4,14 +4,14 @@
 
 struct Matrix
 {
-    double** matrix; 
+    double* matrix; 
     uint32_t width;
     uint32_t height;
 };
 typedef struct Matrix Matrix;
 
-ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
-    if (height <= 0 || width <= 0) {
+ErrorCode matrix_create(PMatrix* matrix, const uint32_t height, const uint32_t width) {
+    if (height == 0 || width == 0) {
         return ERROR_MATRIX_SIZE_ILLEGAL;
     }
     if (matrix == NULL) { //check the args is ok
@@ -21,7 +21,7 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
     if (pm == NULL) {
         return ERROR_FAIL_ALLOCATE;
     }
-    pm->matrix = (double**) malloc(height * sizeof(double*)); //allocate the inside array 
+    pm->matrix = (double*) calloc(height * width, sizeof(double)); //allocate the inside array 
     if (pm->matrix == NULL) {
         free(pm);
         return ERROR_FAIL_ALLOCATE;
@@ -29,17 +29,6 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
     //initialize the variables.
     pm->height = height;
     pm->width = width;
-    for (int i = 0; i < height; ++i) {
-        pm->matrix[i] = calloc(width, sizeof(double)); //allocate the rows and put zero inside.
-        if (pm->matrix[i] == NULL) { //in case of fail allocate, free all the memmory.
-            for (int k = i; k >= 0; --k){
-                free(pm->matrix[k]);
-            }
-            free (pm->matrix);
-            free (pm);
-            return ERROR_FAIL_ALLOCATE;
-        }
-    } 
     *matrix = pm;
     return ERROR_SUCCESS;
 }
@@ -49,16 +38,13 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
     if (source == NULL || result == NULL) {
         return ERROR_NULL_ARGUMENT;
     }
-    //allocte the copied matrix.
     ErrorCode ec = matrix_create(result, source->height, source->width);
     if (!error_isSuccess(ec)) {
         return ec;
     } 
     //copy the values. 
-    for (int i = 0; i < (*result)->height; ++i) {
-        for (int j = 0; j < (*result)->width; ++j) {
-            (*result)->matrix[i][j] = source->matrix[i][j];
-        }
+    for (uint32_t i = 0; i < (*result)->height * (*result)->width; ++i) {
+        (*result)->matrix[i] = source->matrix[i];
     }
     return ERROR_SUCCESS;
 }
@@ -66,10 +52,6 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
 void matrix_destroy(PMatrix matrix) {
     if (matrix == NULL) {
         return;
-    }
-    //free each rows
-    for (int i = 0; i < matrix->height; ++i) {
-        free(matrix->matrix[i]);
     }
     free (matrix->matrix);
     free (matrix);
@@ -101,7 +83,7 @@ ErrorCode matrix_setValue(PMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
     if (rowIndex >= matrix->height || colIndex >= matrix->width) {
         return ERROR_NOT_EXIST_INDEX;
     }
-    matrix->matrix[rowIndex][colIndex] = value;
+    matrix->matrix[rowIndex * matrix->width + colIndex] = value;
     return ERROR_SUCCESS;
 }
 
@@ -114,7 +96,7 @@ ErrorCode matrix_getValue(CPMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
     if (rowIndex >= matrix->height || colIndex >= matrix->width) {
         return ERROR_NOT_EXIST_INDEX;
     }
-    *value = matrix->matrix[rowIndex][colIndex];
+    *value = matrix->matrix[rowIndex * matrix->width + colIndex];
     return ERROR_SUCCESS;            
 }
 
@@ -125,16 +107,13 @@ ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
     if (lhs->height != rhs->height || lhs->width != rhs->width) { //check the sizes are the same.
         return ERROR_ILLEGAL_ACTION;
     }
-    //create the new matrix. 
     ErrorCode ec = matrix_create(result, lhs->height, lhs->width);
     if (!error_isSuccess(ec)) {
        return ec; 
     }
     //set values in the new matrix.
-    for (int i = 0; i < lhs->height; ++i) {
-        for (int j = 0; j < lhs->width; ++j) {
-            (*result)->matrix[i][j] = lhs->matrix[i][j] + rhs->matrix[i][j];
-        }
+    for (uint32_t i = 0; i < lhs->height * lhs->width; ++i) {
+        (*result)->matrix[i] = lhs->matrix[i] + rhs->matrix[i];
     }
     return ERROR_SUCCESS;
 }
@@ -146,21 +125,20 @@ ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
     if (lhs->width != rhs->height) { //check the action is legal
         return ERROR_ILLEGAL_ACTION;
     }
-    //create the new matrix
     ErrorCode ec = matrix_create(result, lhs->height, rhs->width);
     if (!error_isSuccess(ec)) {
        return ec;
     }
     //set values in the matrix. 
     double sum = 0.0;
-    for (int i = 0; i < (*result)->height; ++i) {
-        for (int j = 0; j < (*result)->width; ++j) {
+    for (uint32_t i = 0; i < (*result)->height; ++i) {
+        for (uint32_t j = 0; j < (*result)->width; ++j) {
             //multiply vectors
             sum = 0.0;
-            for (int k = 0; k < lhs->width; ++k) {
-                sum += (lhs->matrix[i][k] * rhs->matrix[k][j]);
+            for (uint32_t k = 0; k < lhs->width; ++k) {
+                sum += lhs->matrix[i * lhs->width + k] * rhs->matrix[k * rhs->width + j];
             }
-            (*result)->matrix[i][j] = sum;
+            matrix_setValue(*result, i, j, sum);
         } 
     }
     return ERROR_SUCCESS;
@@ -171,10 +149,8 @@ ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar) {
     if (matrix == NULL) { //check the args is ok
         return ERROR_NULL_ARGUMENT;
     }
-    for (int i = 0; i < matrix->height; ++i) {
-        for (int j = 0; j < matrix->width; ++j) {
-            matrix->matrix[i][j] = matrix->matrix[i][j] * scalar;
-        }
+    for (uint32_t i = 0; i < matrix->height * matrix->width; ++i) {
+        matrix->matrix[i] = matrix->matrix[i] * scalar;
     }
     return ERROR_SUCCESS;
 }
