@@ -18,9 +18,8 @@ const char* error_getErrorMessage(ErrorCode code) {
         case ERROR_ILLEGAL_ACTION:
             return "The action is illegl or not set action.";
         case ERROR_MATRIX_SIZE_ILLEGAL:
-            return "can't create matrix with size 0";
+            return "Can't create matrix with size 0";
         default:
             return "Not an ERROR CODE";
     }
-    return "Not an ERROR CODE";
 }

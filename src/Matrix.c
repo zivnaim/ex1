@@ -10,8 +10,8 @@ struct Matrix
 };
 typedef struct Matrix Matrix;
 
-ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
-    if (height <= 0 || width <= 0) {
+ErrorCode matrix_create(PMatrix* matrix, const uint32_t height, const uint32_t width) {
+    if (height == 0 || width == 0) {
         return ERROR_MATRIX_SIZE_ILLEGAL;
     }
     if (matrix == NULL) { //check the args is ok
@@ -29,10 +29,10 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
     //initialize the variables.
     pm->height = height;
     pm->width = width;
-    for (int i = 0; i < height; ++i) {
+    for (uint32_t i = 0; i < height; ++i) {
         pm->matrix[i] = calloc(width, sizeof(double)); //allocate the rows and put zero inside.
         if (pm->matrix[i] == NULL) { //in case of fail allocate, free all the memmory.
-            for (int k = i; k >= 0; --k){
+            for (uint32_t k = 0; k < i; k++){
                 free(pm->matrix[k]);
             }
             free (pm->matrix);
@@ -49,14 +49,13 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source) {
     if (source == NULL || result == NULL) {
         return ERROR_NULL_ARGUMENT;
     }
-    //allocte the copied matrix.
     ErrorCode ec = matrix_create(result, source->height, source->width);
     if (!error_isSuccess(ec)) {
         return ec;
     } 
     //copy the values. 
-    for (int i = 0; i < (*result)->height; ++i) {
-        for (int j = 0; j < (*result)->width; ++j) {
+    for (uint32_t i = 0; i < (*result)->height; ++i) {
+        for (uint32_t j = 0; j < (*result)->width; ++j) {
             (*result)->matrix[i][j] = source->matrix[i][j];
         }
     }
@@ -68,7 +67,7 @@ void matrix_destroy(PMatrix matrix) {
         return;
     }
     //free each rows
-    for (int i = 0; i < matrix->height; ++i) {
+    for (uint32_t i = 0; i < matrix->height; ++i) {
         free(matrix->matrix[i]);
     }
     free (matrix->matrix);
@@ -125,14 +124,13 @@ ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
     if (lhs->height != rhs->height || lhs->width != rhs->width) { //check the sizes are the same.
         return ERROR_ILLEGAL_ACTION;
     }
-    //create the new matrix. 
     ErrorCode ec = matrix_create(result, lhs->height, lhs->width);
     if (!error_isSuccess(ec)) {
        return ec; 
     }
     //set values in the new matrix.
-    for (int i = 0; i < lhs->height; ++i) {
-        for (int j = 0; j < lhs->width; ++j) {
+    for (uint32_t i = 0; i < lhs->height; ++i) {
+        for (uint32_t j = 0; j < lhs->width; ++j) {
             (*result)->matrix[i][j] = lhs->matrix[i][j] + rhs->matrix[i][j];
         }
     }
@@ -146,18 +144,17 @@ ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
     if (lhs->width != rhs->height) { //check the action is legal
         return ERROR_ILLEGAL_ACTION;
     }
-    //create the new matrix
     ErrorCode ec = matrix_create(result, lhs->height, rhs->width);
     if (!error_isSuccess(ec)) {
        return ec;
     }
     //set values in the matrix. 
     double sum = 0.0;
-    for (int i = 0; i < (*result)->height; ++i) {
-        for (int j = 0; j < (*result)->width; ++j) {
+    for (uint32_t i = 0; i < (*result)->height; ++i) {
+        for (uint32_t j = 0; j < (*result)->width; ++j) {
             //multiply vectors
             sum = 0.0;
-            for (int k = 0; k < lhs->width; ++k) {
+            for (uint32_t k = 0; k < lhs->width; ++k) {
                 sum += (lhs->matrix[i][k] * rhs->matrix[k][j]);
             }
             (*result)->matrix[i][j] = sum;
@@ -171,8 +168,8 @@ ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar) {
     if (matrix == NULL) { //check the args is ok
         return ERROR_NULL_ARGUMENT;
     }
-    for (int i = 0; i < matrix->height; ++i) {
-        for (int j = 0; j < matrix->width; ++j) {
+    for (uint32_t i = 0; i < matrix->height; ++i) {
+        for (uint32_t j = 0; j < matrix->width; ++j) {
             matrix->matrix[i][j] = matrix->matrix[i][j] * scalar;
         }
     }
